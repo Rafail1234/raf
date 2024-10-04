@@ -1,0 +1,21 @@
+// Online C++ compiler to run C++ program online
+#include <iostream>
+#include <math.h>
+using namespace std;
+
+int main()
+{
+
+	int i;
+	int numbers[10];
+	int min=1;
+	cout<<"Введите 10 число";
+	for(i=1;i<10;i++){
+		cin>>numbers[i];
+	}
+	{
+		min=numbers[i];
+	}
+	cout<<"Наименьшее число:"<<min<<endl;
+	return 0;
+}
