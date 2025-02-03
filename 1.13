@@ -1,0 +1,13 @@
+#include<iostream>
+using namespace std;
+int main(){
+	int number;
+	cout <<"Ведите целое число:";
+	cin>>number;
+	int next_number=number+1;
+	int previos_number=number-1;
+	cout<<"Следущее за числом"<<number<<"число-"<<next_number<<"."<<endl;
+	cout<<"Для числа"<<number<<"предадущее число-"<<previos_number<<"."<<endl;
+	
+	return 0;
+}
