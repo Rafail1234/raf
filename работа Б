@@ -1,0 +1,11 @@
+#include <iostream>
+using namespace std;
+int main () {
+	int n;
+	cout << "Введите количество месяцев с начала 1900 года" ;
+    cin >> n;
+    int month = (n % 12) + 1;
+    cout << "Значение x: " << month << std::endl;
+
+return 0;
+}
