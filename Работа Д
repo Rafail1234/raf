@@ -1,0 +1,14 @@
+#include <iostream>
+int main(){
+	int num;
+	std::cout << "Введите номер квартиры: ";
+	std::cin >> num;
+	
+	int floor = (num - 1) / 3 + 1;
+	int positionOnFloor = (num - 1) % 3 + 1;
+	
+	std::cout << "Этаж: " << floor<< std::endl;
+	std::cout << "Позиция квартиры на этаже: " positionOnFloor << std::endl;
+	
+	return 0;
+}
