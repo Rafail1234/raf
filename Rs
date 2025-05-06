@@ -1,0 +1,24 @@
+#include <iostream>
+#include <math.h>
+using namespace std;
+
+double summa(double x, double y)
+{
+   double z;
+   z=x+y;
+   return z;
+}
+double blum (double x,double y)
+{
+    double z;
+    z=x-pow(10,sin(x))+cos(x-y);
+    return z;
+}
+int main() {
+    double x=5,y=4,s,res;
+    s= summa(x,y);
+    res=blum(x);
+    cout «"Сумма равна"«s«"\n";
+    cout «"\nРезультат = "«res;
+    return 0;
+}
