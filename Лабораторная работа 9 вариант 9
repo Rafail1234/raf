@@ -1,0 +1,58 @@
+#include <iostream>   // для cin, cout, cerr
+#include <fstream>    // для работы с файлами ifstream, ofstream
+#include <cstdlib>    // для функций rand(), srand()
+#include <ctime>      // для функции time()
+
+using namespace std;
+
+int main() {
+    int N;
+    cout << "Введите количество чисел N: ";
+    cin >> N;  // пользователь вводит количество случайных чисел
+
+    // "Засеваем" генератор случайных чисел текущим временем,
+    // чтобы при каждом запуске числа были разные
+    srand(time(nullptr));
+
+    // --- 1. Создание файла с исходными числами ---
+    ofstream sourceFile("source.txt");   // откроем файл для записи
+    if (!sourceFile) {                   // если файл не удалось открыть
+        cerr << "Ошибка создания файла!" << endl;
+        return 1;                        // завершаем программу с ошибкой
+    }
+
+    cout << "Сгенерированные числа: ";
+    for (int i = 0; i < N; ++i) {
+        int num = rand() % 100 + 1;  // случайное число от 1 до 100
+        sourceFile << num << " ";    // записываем его в файл
+        cout << num << " ";          // выводим на экран
+    }
+    cout << endl;
+    sourceFile.close();              // закрываем файл с исходными числами
+
+    // --- 2. Чтение исходных чисел и формирование произведений ---
+    ifstream inputFile("source.txt");    // открываем файл для чтения
+    ofstream outputFile("result.txt");   // создаём файл для записи результата
+
+    if (!inputFile || !outputFile) {     // проверяем, открылись ли оба файла
+        cerr << "Ошибка открытия файлов!" << endl;
+        return 1;
+    }
+
+    long long product = 1;   // переменная для накопления произведения
+    int number;              // очередное считанное число
+
+    cout << "Последовательные произведения: ";
+    while (inputFile >> number) {   // читаем числа по одному
+        product *= number;          // перемножаем
+        outputFile << product << " "; // пишем в result.txt
+        cout << product << " ";       // выводим на экран
+    }
+    cout << endl;
+
+    inputFile.close();   // закрываем файлы
+    outputFile.close();
+
+    cout << "Результат записан в файл 'result.txt'" << endl;
+    return 0;  // успешное завершение программы
+}
