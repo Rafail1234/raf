@@ -37,7 +37,7 @@ int main() {
 	
 	int* temp = (int*)realloc(arr, newSize * sizeof(int));
 	if (temp == nullptr) {
-		std::cerr << "Ошибка перевыделения памяти!\n";
+		cerr << "Ошибка перевыделения памяти!\n";
 		free(arr); // освобождаем старый массив
 		return 1;
 	}
@@ -52,7 +52,7 @@ int main() {
 	
 	cout << "Массив после изменения размера:\n";
 	for (int i = 0; i < newSize; i++) {
-		std::cout << arr[i] << " ";
+		cout << arr[i] << " ";
 	}
 	cout << "\n";
 	
