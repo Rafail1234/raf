@@ -1,0 +1,25 @@
+#include <iostream>
+using namespace std;
+
+int main() {
+    char s[100];
+    cout << "Введите строку: ";
+    cin >> s;
+
+    int count = 0;
+    // Считаем длину строки вручную (как на практике учили)
+    int len = 0;
+    while (s[len] != '\0') {
+        len++;
+    }
+
+    // Идём только до len-2, чтобы i+2 был в пределах строки
+    for (int i = 0; i <= len - 3; i++) {
+        if (s[i] == 'a' && s[i+1] == 'b' && s[i+2] == 'c') {
+            count++;
+        }
+    }
+
+    cout << "Количество 'abc': " << count << endl;
+    return 0;
+}
