@@ -1,111 +1,94 @@
 #include <iostream>
-#include <iomanip>
-#include <string>
+#include <vector>
 
 using namespace std;
 
-struct Product {
-	string name;       // наименование
-	string code;       // числовой шифр
-	double price;      // цена за единицу
-	double quantity;   // количество
-	string unit;       // единица измерения
-	double totalCost;  // стоимость позиции
+struct Event {
+	int id; // номер события вместо описания
+	int start_hour;
+	int start_minute;
+	int end_hour;
+	int end_minute;
 };
 
-void calculateTotal(Product &p) {
-	p.totalCost = p.price * p.quantity;
+// Перевод времени в минуты
+int to_minutes(int hour, int minute) {
+	return hour * 60 + minute;
 }
 
-void printProduct(const Product &p) {
-	cout << left << setw(15) << p.name
-	<< setw(10) << p.code
-	<< setw(8) << p.price
-	<< setw(8) << p.quantity
-	<< setw(5) << p.unit
-	<< setw(10) << p.totalCost << endl;
-}
-
-// Пузырьковая сортировка по наименованию
-void sortByName(Product products[], int n) {
-	for (int i = 0; i < n - 1; i++) {
-		for (int j = 0; j < n - 1 - i; j++) {
-			if (products[j].name > products[j + 1].name) {
-				Product temp = products[j];
-				products[j] = products[j + 1];
-				products[j + 1] = temp;
-			}
-		}
-	}
-}
-
-// Пузырьковая сортировка по стоимости
-void sortByTotalCost(Product products[], int n) {
-	for (int i = 0; i < n - 1; i++) {
-		for (int j = 0; j < n - 1 - i; j++) {
-			if (products[j].totalCost > products[j + 1].totalCost) {
-				Product temp = products[j];
-				products[j] = products[j + 1];
-				products[j + 1] = temp;
-			}
-		}
-	}
+// Вывод времени
+void print_time(int hour, int minute) {
+	if(hour < 10) cout << "0";
+	cout << hour << ":";
+	if(minute < 10) cout << "0";
+	cout << minute;
 }
 
 int main() {
-	const int n = 4;
-	Product products[n] = {
-		{"Apple", "123", 2.5, 3, "kg"},
-		{"Milk", "456", 1.2, 2, "l"},
-		{"Bread", "789", 1.5, 5, "pcs"},
-		{"Cheese", "321", 10.0, 1, "kg"}
+	setlocale(LC_ALL, "Russian");
+	
+	vector<Event> events = {
+		{1, 9, 0, 10, 30},
+		{2, 10, 0, 11, 0},
+		{3, 11, 0, 12, 0},
+		{4, 12, 30, 14, 0}
 	};
 	
-	// Рассчитаем стоимость каждой позиции и общую сумму
-	double grandTotal = 0;
-	for (int i = 0; i < n; i++) {
-		calculateTotal(products[i]);
-		grandTotal += products[i].totalCost;
-	}
-	
-	// Вывод таблицы
-	cout << left << setw(15) << "Name"
-	<< setw(10) << "Code"
-	<< setw(8) << "Price"
-	<< setw(8) << "Qty"
-	<< setw(5) << "Unit"
-	<< setw(10) << "Total" << endl;
-	cout << "------------------------------------------------------" << endl;
-	for (int i = 0; i < n; i++) {
-		printProduct(products[i]);
-	}
-	cout << "------------------------------------------------------" << endl;
-	cout << "Grand Total: " << grandTotal << endl << endl;
-	
-	// Поиск по шифру
-	string searchCode;
-	cout << "Enter code to search: ";
-	cin >> searchCode;
-	bool found = false;
-	for (int i = 0; i < n; i++) {
-		if (products[i].code == searchCode) {
-			cout << "Found product: ";
-			printProduct(products[i]);
-			found = true;
-			break;
+	// Сортировка пузырьком по времени начала и окончания
+	for(size_t i = 0; i < events.size(); ++i) {
+		for(size_t j = 0; j < events.size()-1-i; ++j) {
+			int a_start = to_minutes(events[j].start_hour, events[j].start_minute);
+			int b_start = to_minutes(events[j+1].start_hour, events[j+1].start_minute);
+			int a_end = to_minutes(events[j].end_hour, events[j].end_minute);
+			int b_end = to_minutes(events[j+1].end_hour, events[j+1].end_minute);
+			
+			if(a_start > b_start || (a_start == b_start && a_end > b_end)) {
+				swap(events[j], events[j+1]);
+			}
 		}
 	}
-	if (!found) cout << "Product not found!" << endl;
 	
-	// Сортировка по наименованию
-	sortByName(products, n);
-	cout << "\nSorted by name:\n";
-	for (int i = 0; i < n; i++) printProduct(products[i]);
+	cout << "Упорядоченные мероприятия:\n";
+	for(auto &e : events) {
+		cout << "Событие " << e.id << ": ";
+		print_time(e.start_hour, e.start_minute);
+		cout << " - ";
+		print_time(e.end_hour, e.end_minute);
+		cout << "\n";
+	}
 	
-	// Сортировка по стоимости
-	sortByTotalCost(products, n);
-	cout << "\nSorted by total cost:\n";
-	for (int i = 0; i < n; i++) printProduct(products[i]);
+	// Поиск перекрывающихся мероприятий
+	cout << "\nПерекрывающиеся мероприятия:\n";
+	for(size_t i = 0; i < events.size(); ++i) {
+		for(size_t j = i+1; j < events.size(); ++j) {
+			if(to_minutes(events[i].end_hour, events[i].end_minute) > 
+				to_minutes(events[j].start_hour, events[j].start_minute)) {
+				cout << "Событие " << events[i].id << " пересекается с событием " << events[j].id << "\n";
+			}
+		}
+	}
+	
+	// Максимальный свободный промежуток
+	int max_gap = 0;
+	int gap_start_hour=0, gap_start_minute=0, gap_end_hour=0, gap_end_minute=0;
+	
+	for(size_t i = 0; i < events.size()-1; ++i) {
+		int gap = to_minutes(events[i+1].start_hour, events[i+1].start_minute) - 
+		to_minutes(events[i].end_hour, events[i].end_minute);
+		if(gap > max_gap) {
+			max_gap = gap;
+			gap_start_hour = events[i].end_hour;
+			gap_start_minute = events[i].end_minute;
+			gap_end_hour = events[i+1].start_hour;
+			gap_end_minute = events[i+1].start_minute;
+		}
+	}
+	
+	cout << "\nМаксимальный свободный промежуток: ";
+	print_time(gap_start_hour, gap_start_minute);
+	cout << " - ";
+	print_time(gap_end_hour, gap_end_minute);
+	cout << ", длительность " << max_gap << " минут\n";
 	
 	return 0;
 }
