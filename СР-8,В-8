@@ -1,94 +1,57 @@
 #include <iostream>
-#include <vector>
-
+#include <string>
 using namespace std;
 
 struct Event {
-	int id; // номер события вместо описания
-	int start_hour;
-	int start_minute;
-	int end_hour;
-	int end_minute;
+	string name;
+	int y,m,d,sh,sm,eh,em;
 };
-
-// Перевод времени в минуты
-int to_minutes(int hour, int minute) {
-	return hour * 60 + minute;
-}
-
-// Вывод времени
-void print_time(int hour, int minute) {
-	if(hour < 10) cout << "0";
-	cout << hour << ":";
-	if(minute < 10) cout << "0";
-	cout << minute;
-}
 
 int main() {
 	setlocale(LC_ALL, "Russian");
+	int n; 
+	cout << "Сколько мероприятий?: "; 
+	cin >> n;
+	Event e[100]; 
+	cin.ignore();
 	
-	vector<Event> events = {
-		{1, 9, 0, 10, 30},
-		{2, 10, 0, 11, 0},
-		{3, 11, 0, 12, 0},
-		{4, 12, 30, 14, 0}
-	};
+	for(int i=0;i<n;i++){
+		cout << "\nНазвание мероприятия: "; getline(cin,e[i].name);
+		cout << "Дата (год месяц день): "; cin >> e[i].y >> e[i].m >> e[i].d;
+		cout << "Время начала (часы минуты): "; cin >> e[i].sh >> e[i].sm;
+		cout << "Время конца (часы минуты): "; cin >> e[i].eh >> e[i].em;
+		cin.ignore();
+	}
 	
-	// Сортировка пузырьком по времени начала и окончания
-	for(size_t i = 0; i < events.size(); ++i) {
-		for(size_t j = 0; j < events.size()-1-i; ++j) {
-			int a_start = to_minutes(events[j].start_hour, events[j].start_minute);
-			int b_start = to_minutes(events[j+1].start_hour, events[j+1].start_minute);
-			int a_end = to_minutes(events[j].end_hour, events[j].end_minute);
-			int b_end = to_minutes(events[j+1].end_hour, events[j+1].end_minute);
-			
-			if(a_start > b_start || (a_start == b_start && a_end > b_end)) {
-				swap(events[j], events[j+1]);
-			}
+	for(int i=0;i<n-1;i++)
+		for(int j=0;j<n-1-i;j++){
+			bool swapNeeded = false;
+			if (e[j].y>e[j+1].y) swapNeeded=true;
+			else if(e[j].y==e[j+1].y && e[j].m>e[j+1].m) swapNeeded=true;
+			else if(e[j].y==e[j+1].y && e[j].m==e[j+1].m && e[j].d>e[j+1].d) swapNeeded=true;
+			else if(e[j].y==e[j+1].y && e[j].m==e[j+1].m && e[j].d==e[j+1].d &&
+				(e[j].sh>e[j+1].sh || (e[j].sh==e[j+1].sh && e[j].sm>e[j+1].sm))) swapNeeded=true;
+			if(swapNeeded) swap(e[j], e[j+1]);
 		}
-	}
 	
-	cout << "Упорядоченные мероприятия:\n";
-	for(auto &e : events) {
-		cout << "Событие " << e.id << ": ";
-		print_time(e.start_hour, e.start_minute);
-		cout << " - ";
-		print_time(e.end_hour, e.end_minute);
-		cout << "\n";
-	}
+	cout << "\n--- Список мероприятий ---\n";
+	for(int i=0;i<n;i++)
+		cout << e[i].name << " | " << e[i].d<<"."<<e[i].m<<"."<<e[i].y
+		<< " | "<<e[i].sh<<":"<<e[i].sm<<" - "<<e[i].eh<<":"<<e[i].em<<endl;
 	
-	// Поиск перекрывающихся мероприятий
-	cout << "\nПерекрывающиеся мероприятия:\n";
-	for(size_t i = 0; i < events.size(); ++i) {
-		for(size_t j = i+1; j < events.size(); ++j) {
-			if(to_minutes(events[i].end_hour, events[i].end_minute) > 
-				to_minutes(events[j].start_hour, events[j].start_minute)) {
-				cout << "Событие " << events[i].id << " пересекается с событием " << events[j].id << "\n";
-			}
+	cout << "\n--- Пересечения и максимальные промежутки ---\n";
+	for(int i=0;i<n;){
+		int j=i; while(j<n && e[j].y==e[i].y && e[j].m==e[i].m && e[j].d==e[i].d) j++;
+		bool overlap=false; int maxGap=0; string gapBetween;
+		for(int k=i;k<j-1;k++){
+			int endCur = e[k].eh*60 + e[k].em, startNext = e[k+1].sh*60 + e[k+1].sm;
+			if(startNext<endCur){ cout<<e[k].name<<" пересекается с "<<e[k+1].name<<endl; overlap=true;}
+			int gap = startNext - endCur;
+			if(gap>maxGap){ maxGap=gap; gapBetween=e[k].name+" и "+e[k+1].name;}
 		}
+		if(!overlap) cout<<"На дату "<<e[i].d<<"."<<e[i].m<<"."<<e[i].y<<" пересечений нет\n";
+		if(maxGap>0) cout<<"Максимальный свободный промежуток: "<<maxGap<<" минут между "<<gapBetween<<endl;
+		else cout<<"Свободного времени на эту дату нет\n";
+		i=j;
 	}
-	
-	// Максимальный свободный промежуток
-	int max_gap = 0;
-	int gap_start_hour=0, gap_start_minute=0, gap_end_hour=0, gap_end_minute=0;
-	
-	for(size_t i = 0; i < events.size()-1; ++i) {
-		int gap = to_minutes(events[i+1].start_hour, events[i+1].start_minute) - 
-		to_minutes(events[i].end_hour, events[i].end_minute);
-		if(gap > max_gap) {
-			max_gap = gap;
-			gap_start_hour = events[i].end_hour;
-			gap_start_minute = events[i].end_minute;
-			gap_end_hour = events[i+1].start_hour;
-			gap_end_minute = events[i+1].start_minute;
-		}
-	}
-	
-	cout << "\nМаксимальный свободный промежуток: ";
-	print_time(gap_start_hour, gap_start_minute);
-	cout << " - ";
-	print_time(gap_end_hour, gap_end_minute);
-	cout << ", длительность " << max_gap << " минут\n";
-	
-	return 0;
 }
